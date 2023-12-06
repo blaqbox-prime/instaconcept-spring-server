@@ -24,7 +24,7 @@ import lombok.ToString;
 public class User {
     
     @Id
-    private UUID user_id;
+    private UUID user_id = UUID.randomUUID();
 
     @Column(length = 25,nullable = false)
     private String name;

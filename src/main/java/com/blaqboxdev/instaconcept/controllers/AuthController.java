@@ -1,5 +1,6 @@
 package com.blaqboxdev.instaconcept.controllers;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blaqboxdev.instaconcept.exceptions.InvalidPasswordResetTokenException;
+import com.blaqboxdev.instaconcept.exceptions.UserAlreadyExistsException;
 import com.blaqboxdev.instaconcept.exceptions.UserNotFoundException;
 import com.blaqboxdev.instaconcept.exceptions.WrongUsernamePasswordException;
 import com.blaqboxdev.instaconcept.models.ErrorResponse;
@@ -21,6 +23,7 @@ import com.blaqboxdev.instaconcept.models.PasswordResetToken;
 import com.blaqboxdev.instaconcept.models.ResetPasswordRequest;
 import com.blaqboxdev.instaconcept.models.User;
 import com.blaqboxdev.instaconcept.models.UserLoginRequest;
+import com.blaqboxdev.instaconcept.models.UserRegistrationRequest;
 import com.blaqboxdev.instaconcept.repositories.UserRepository;
 import com.blaqboxdev.instaconcept.services.AuthService;
 import com.blaqboxdev.instaconcept.services.PasswordResetService;
@@ -64,5 +67,21 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }
-    
+
+    // Register a User <<Does not create a profile>>
+    @PostMapping("/register")
+    public ResponseEntity<Object> registerNewUser(@RequestBody UserRegistrationRequest userDetails) {
+        Map<String,Object> data = new HashMap<>();
+        User user = null;
+
+        try {
+            user = authService.registerUser(userDetails);
+        } catch (UserAlreadyExistsException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+        
+        data.put("user_id", user.getUser_id());
+        return ResponseEntity.ok(data);
+    }
+        
 }
